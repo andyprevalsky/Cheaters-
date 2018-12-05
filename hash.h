@@ -4,7 +4,7 @@
 #include <queue>
 using namespace std;
 
-#define N 9991
+#define N 99991
 #define A 54059 /* a prime */
 #define B 76963 /* another prime */
 #define C 86969 /* yet another prime */
