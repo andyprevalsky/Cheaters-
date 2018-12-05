@@ -6,11 +6,12 @@
 #include <iostream>
 #include <fstream>
 #include <queue>
+#include "hash.h"
 
 using namespace std;
 
 string strip(string& t);
-void getChunks(vector<string> files, vector<queue<string>>& chunks, int nLength);
+void getChunks(string files, vector<queue<string>>& chunks, int nLength);
 
 /*function... might want it in some class?*/
 int getdir (string dir, vector<string> &files) {
@@ -29,21 +30,16 @@ int getdir (string dir, vector<string> &files) {
 }
 
 int main(int argc, char* agrv[]) {
-    string dir = string("sm_doc_set");
+    string dir = string("mid_doc_set");
     vector<string> files = vector<string>();
-
     getdir(dir,files);
-    
-    for (unsigned int i = 0;i < files.size();i++) {
-        cout << i << files[i] << endl;
-    }
 
-    if (argc == 1) {
+    if (argc < 3) {
         cout << "No Parameters Added!" << endl;
         return 0;
     }
 
-
+    int bound = stoi(agrv[2]);
     int nLength = stoi(agrv[1]);
     if (nLength == 0) {
         cout << "0 Length Chunks Aren't Allowed! " << endl;
@@ -52,9 +48,22 @@ int main(int argc, char* agrv[]) {
 
 
     cout << "Finding all " << nLength << " chunks!" << endl;
+    vector<vector<queue<string>>> chunks;
+    for (int i = 2; i < files.size(); i++) {
+        vector<queue<string>> chunk;
+        getChunks(files[i], chunk, nLength);
+        chunks.push_back(chunk);
+    }
+    Hash h;
+    
+    for (int i = 0; i < chunks.size(); i++){
+        for(int j = 0; j < chunks[i].size(); j++){
+            h.insert(chunks[i][j], i);
+        }
+    }
 
-    vector<queue<string>> chunks;
-    getChunks(files, chunks, nLength);
+    h.fileSimilarities(files.size()-2, files,bound);
+
 }
 
 string strip(string& t) { //changes string to all lower case and strips away special characters
@@ -65,35 +74,35 @@ string strip(string& t) { //changes string to all lower case and strips away spe
     return res;
 }
 
-void getChunks(vector<string> files, vector<queue<string>>& chunks, int nLength) {
+void getChunks(string fName, vector<queue<string>>& chunks, int nLength) {
     queue<string> q;
-
-    for (int i = 0; i < files.size(); i++) { // loop through all files in sm_doc_set directory
-        string fName = files[i];
-        ifstream fin ("sm_doc_set/" + fName);
-        int j = 0;
-        while(fin.good()) { //loop through file while file is still readable 
-            for (; j < nLength; j++) { // fill queue, first, then process each word once at a time
-                string temp;
-                fin >> temp;
-                temp = strip(temp); //strip temp of all special characters and convert all characters to lowe case
-                if (temp == "") j--; //if sttring is empty then don't count it as a word
-                if (fin.eof()) break; // break so that last line isn't read twice
-                q.push(temp);
+    ifstream fin ("mid_doc_set/" + fName);
+    int j = 0;
+    while(fin.good()) { //loop through file while file is still readable 
+        for (; j < nLength; j++) { // fill queue, first, then process each word once at a time
+            string temp;
+            fin >> temp;
+            temp = strip(temp); //strip temp of all special characters and convert all characters to lowe case
+            if (fin.eof()) break; // break so that last line isn't read twice
+            if (temp == "") {
+                j--; //if sttring is empty then don't count it as a word
+                continue;
             }
-            chunks.push_back(q);
-            if (!q.empty()) q.pop();
-            j--;
+            q.push(temp);
         }
+        if (q.size() < nLength) return;
+        chunks.push_back(q);
+        if (!q.empty()) q.pop();
+        j--;
     }
 
-    for (auto i: chunks) {
-        while (!i.empty()) {
-            cout << i.front() << " ";
-            i.pop();
-        }
-        cout << endl;
-    }
+    // for (auto i: chunks) {
+    //     while (!i.empty()) {
+    //         cout << i.front() << " ";
+    //         i.pop();
+    //     }
+    //     cout << endl;
+    // }
 
     return;
 }
