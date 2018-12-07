@@ -1,6 +1,7 @@
 #include <vector>
 #include <string>
 #include <iostream>
+#include <algorithm>
 #include <queue>
 using namespace std;
 
@@ -57,13 +58,23 @@ class Hash {
                 }
             }
 
+
             //print!!
+            vector<vector<int> > res2;
             for(int i = 0; i < numFiles; i++){
                 for(int j = i+1; j < numFiles; j++){
                     if(result[i][j] > bound){
-                        cout << result[i][j] << ": " << fileNames[i+2] << "," << fileNames[j+2] << endl; 
+                        vector<int> a;
+                        a.push_back(result[i][j]);
+                        a.push_back(i+2);
+                        a.push_back(j+2);
+                        res2.push_back(a);
                     }
                 }
+            }
+            sort(res2.begin(),res2.end());
+            for(int i = res2.size()-1; i >= 0; i--){
+                cout << res2[i][0] << ": " << fileNames[res2[i][1]] << ", " << fileNames[res2[i][2]] << endl;
             }
 
             //cout << "SIZE " << res.size() << endl;
