@@ -20,9 +20,9 @@ string strip(string& t) { //changes string to all lower case and strips away spe
     return res;
 }
 
-void getChunks(string fName, vector<queue<string> >& chunks, int nLength) {
+void getChunks(string fName, vector<queue<string> >& chunks, int nLength, string path) {
     queue<string> q;
-    ifstream fin (("sm_doc_set/" + fName).c_str());
+    ifstream fin ((path + fName).c_str());
     int j = 0;
     while(fin.good()) { //loop through file while file is still readable
         for (; j < nLength; j++) { // fill queue, first, then process each word once at a time
@@ -70,17 +70,20 @@ int getdir (string dir, vector<string> &files) {
 }
 
 int main(int argc, char* agrv[]) {
-    string dir = string("sm_doc_set");
-    vector<string> files = vector<string>();
-    getdir(dir,files);
-
-    if (argc < 3) {
-        cout << "No Parameters Added!" << endl;
+//check if parameters are accurate
+    if (argc < 4) {
+        cout << "Not Enough Parameters Added!" << endl;
         return 0;
     }
 
-    int bound = atoi(agrv[2]);
-    int nLength = atoi(agrv[1]);
+//get the arguments from the command line and put them in variables for use
+    string dir = string(agrv[1]);
+    vector<string> files = vector<string>();
+    getdir(dir,files);
+
+    int bound = atoi(agrv[3]);
+    int nLength = atoi(agrv[2]);
+//check if argument is wrong!    
     if (nLength == 0) {
         cout << "0 Length Chunks Aren't Allowed! " << endl;
         return 0;
@@ -91,9 +94,10 @@ int main(int argc, char* agrv[]) {
     vector<vector<queue<string> > > chunks;
     for (int i = 2; i < files.size(); i++) {
         vector<queue<string> > chunk;
-        getChunks(files[i], chunk, nLength);
+        getChunks(files[i], chunk, nLength, dir);
         chunks.push_back(chunk);
     }
+    //create hash
     Hash h;
 
     for (int i = 0; i < chunks.size(); i++){
@@ -101,6 +105,6 @@ int main(int argc, char* agrv[]) {
             h.insert(chunks[i][j], i);
         }
     }
-
+//organize the similarities between files and print out the similarities along with the file names in sorted order 
     h.fileSimilarities(files.size()-2, files,bound);
 }

@@ -37,7 +37,7 @@ class Hash {
             }
             return h % N; // or return h % C;
         }
-
+//organize the similarities between files
         void fileSimilarities(int numFiles, vector<string>& fileNames, int bound){
             int ind = 0;
             int result[numFiles][numFiles];
@@ -60,7 +60,7 @@ class Hash {
             }
 
 
-            //print!!
+            //print after sorting the similarities bound by the lower limit!!
             vector<vector<int> > res2;
             for(int i = 0; i < numFiles; i++){
                 for(int j = i+1; j < numFiles; j++){
